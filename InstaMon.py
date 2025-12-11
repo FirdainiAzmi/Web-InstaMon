@@ -105,9 +105,10 @@ with tab2:
         st.components.v1.iframe(
             src=LOOKER_EMBED_URL,
             width=1400,
-            height=600,
+            height=620,
             scrolling=True
         )
+
 
 
 
