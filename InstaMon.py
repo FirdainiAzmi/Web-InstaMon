@@ -44,72 +44,79 @@ def scrape_instagram(url):
     }
 
 # ==================== STYLE CSS ====================
-st.markdown(
-    """
-    <style>
-    /* Background container untuk tab input dan tabel */
-    .blue-container {
-        background-color: #E6F0FA;
-        padding: 20px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-        border: 1px solid #B0C4DE;
-    }
+st.markdown("""
+<style>
+/* Gradient Header */
+.header-gradient {
+    background: linear-gradient(90deg, #1E3C72, #2A5298);
+    color: white;
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 38px;
+    font-weight: bold;
+    box-shadow: 0px 4px 20px rgba(0,0,0,0.2);
+}
 
-    /* Judul utama */
-    .title-blue {
-        color: #0B3D91;
-        font-size: 36px;
-        font-weight: bold;
-        text-align: center;
-        margin-bottom: 10px;
-    }
+/* Subtitle */
+.subtitle {
+    color: #0B3D91;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
 
-    /* Subjudul */
-    .subtitle-blue {
-        color: #0B3D91;
-        font-size: 20px;
-        font-weight: 600;
-        margin-bottom: 10px;
-    }
+/* Card Container */
+.card {
+    background-color: #F0F8FF;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    margin-bottom: 20px;
+}
 
-    /* Tombol biru */
-    .stButton>button {
-        background-color: #0B3D91;
-        color: white;
-        border-radius: 8px;
-        padding: 0.5em 1em;
-        font-weight: bold;
-        border: none;
-    }
+/* Buttons */
+.stButton>button {
+    background-color: #0B3D91;
+    color: white;
+    border-radius: 12px;
+    padding: 0.7em 1.5em;
+    font-weight: bold;
+    border: none;
+    font-size: 16px;
+}
+.stButton>button:hover {
+    background-color: #1E5BB8;
+    color: white;
+}
 
-    .stButton>button:hover {
-        background-color: #1E5BB8;
-        color: white;
-    }
+/* Table */
+.stDataFrame>div {
+    border-radius: 12px !important;
+    overflow: hidden !important;
+}
 
-    /* Iframe dashboard */
-    .iframe-container {
-        border: 1px solid #B0C4DE;
-        border-radius: 12px;
-        padding: 10px;
-        background-color: #F0F8FF;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+/* Iframe Card */
+.iframe-card {
+    background-color: #E6F0FA;
+    border-radius: 20px;
+    padding: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    margin-bottom: 20px;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # ==================== TABS ====================
 tab1, tab2 = st.tabs(["🛠️ Tools Input Data", "📊 Dashboard Monitoring"])
 
 # -------------------- TAB 1 --------------------
 with tab1:
-    st.markdown('<div class="title-blue">🛠️ InstaMon Instagram Scraper</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitle-blue">Masukkan link Instagram (1 link per baris)</div>', unsafe_allow_html=True)
+    st.markdown('<div class="header-gradient">🛠️ InstaMon Instagram Scraper</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitle">Masukkan link Instagram (1 link per baris)</div>', unsafe_allow_html=True)
 
     with st.container():
-        st.markdown('<div class="blue-container">', unsafe_allow_html=True)
+        st.markdown('<div class="card">', unsafe_allow_html=True)
 
         links_text = st.text_area(
             "Input link di sini:",
@@ -161,13 +168,13 @@ with tab1:
 
 # -------------------- TAB 2 --------------------
 with tab2:
-    st.markdown('<div class="title-blue">📊 Dashboard Monitoring</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitle-blue">Pantau hasil scraping melalui dashboard berikut:</div>', unsafe_allow_html=True)
+    st.markdown('<div class="header-gradient">📊 Dashboard Monitoring</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitle">Pantau hasil scraping melalui dashboard berikut:</div>', unsafe_allow_html=True)
 
     if LOOKER_EMBED_URL.strip() == "":
         st.warning("Dashboard belum ditautkan.")
     else:
-        st.markdown('<div class="iframe-container">', unsafe_allow_html=True)
+        st.markdown('<div class="iframe-card">', unsafe_allow_html=True)
         st.components.v1.iframe(
             src=LOOKER_EMBED_URL,
             width=1200,
