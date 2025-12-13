@@ -46,7 +46,7 @@ def scrape_instagram(url):
 # ==================== STYLE CSS ====================
 st.markdown("""
 <style>
-/* Gradient Header */
+/* Header gradient */
 .header-gradient {
     background: linear-gradient(90deg, #1E3C72, #2A5298);
     color: white;
@@ -90,19 +90,35 @@ st.markdown("""
     color: white;
 }
 
-/* Table */
-.stDataFrame>div {
-    border-radius: 12px !important;
-    overflow: hidden !important;
+/* Instagram mini card */
+.insta-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    margin-bottom: 15px;
+    transition: transform 0.2s;
 }
-
-/* Iframe Card */
-.iframe-card {
-    background-color: #E6F0FA;
-    border-radius: 20px;
-    padding: 15px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    margin-bottom: 20px;
+.insta-card:hover {
+    transform: translateY(-5px);
+}
+.insta-caption {
+    font-size: 16px;
+    color: #0B3D91;
+    margin-bottom: 8px;
+}
+.insta-date {
+    font-size: 14px;
+    color: #555555;
+    margin-bottom: 10px;
+}
+.insta-link a {
+    color: #1E3C72;
+    text-decoration: none;
+    font-weight: bold;
+}
+.insta-link a:hover {
+    text-decoration: underline;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -150,11 +166,20 @@ with tab1:
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.divider()
-    st.subheader("📋 Tabel Hasil Scraping")
-    if st.session_state.data:
-        df = pd.DataFrame(st.session_state.data)
-        st.dataframe(df, use_container_width=True)
+    st.subheader("📋 Hasil Scraping (Preview Instagram Feed)")
 
+    if st.session_state.data:
+        for item in st.session_state.data[::-1]:  # tampilkan terbaru di atas
+            st.markdown(f"""
+            <div class="insta-card">
+                <div class="insta-caption">{item['Caption']}</div>
+                <div class="insta-date">{item['Tanggal']}</div>
+                <div class="insta-link"><a href="{item['Link']}" target="_blank">Lihat di Instagram</a></div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        # Download CSV
+        df = pd.DataFrame(st.session_state.data)
         csv = df.to_csv(index=False).encode("utf-8")
         st.download_button(
             "⬇️ Download CSV",
@@ -174,7 +199,7 @@ with tab2:
     if LOOKER_EMBED_URL.strip() == "":
         st.warning("Dashboard belum ditautkan.")
     else:
-        st.markdown('<div class="iframe-card">', unsafe_allow_html=True)
+        st.markdown('<div class="card">', unsafe_allow_html=True)
         st.components.v1.iframe(
             src=LOOKER_EMBED_URL,
             width=1200,
