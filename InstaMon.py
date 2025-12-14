@@ -1,11 +1,10 @@
 import streamlit as st
 import pandas as pd
-import requests
-from bs4 import BeautifulSoup
-import re
 import time
-import json
+import re
+from playwright.sync_api import sync_playwright
 
+# ==================== CONFIG ====================
 st.set_page_config(page_title="InstaMon BPS", layout="wide")
 
 LOOKER_EMBED_URL = "https://lookerstudio.google.com/embed/reporting/f8d6fc1b-b5bd-43eb-881c-e74a9d86ff75/page/Z52hF"
@@ -14,69 +13,68 @@ LOOKER_EMBED_URL = "https://lookerstudio.google.com/embed/reporting/f8d6fc1b-b5b
 if "data" not in st.session_state:
     st.session_state.data = []
 
-# ==================== HEADERS (ANTI BOT) ====================
-HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/120.0.0.0 Safari/537.36"
-    ),
-    "Accept-Language": "en-US,en;q=0.9",
-}
-
 # ==================== CLEANING ====================
-def first_sentence(text):
-    match = re.search(r"(.+?[.!?])", text)
-    return match.group(1) if match else text
-
 def clean_caption(text):
-    text = (text or "").replace("\n", " ").replace("\r", " ")
-    text = text.encode("ascii", "ignore").decode("ascii")
-    text = first_sentence(text)
-    text = re.sub(r"[^A-Za-z0-9 ,.!?]+", " ", text)
-    return " ".join(text.split()).strip()
+    text = text.replace("\n", " ").replace("\r", " ")
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
 
-# ==================== HTML SCRAPER ====================
-def scrape_instagram_html(url):
-    r = requests.get(url, headers=HEADERS, timeout=15)
+# ==================== PLAYWRIGHT SCRAPER ====================
+def scrape_instagram_playwright(url):
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page(
+            user_agent=(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/120.0.0.0 Safari/537.36"
+            )
+        )
 
-    if r.status_code != 200:
-        raise Exception("HTTP blocked")
+        page.goto(url, timeout=60000)
+        page.wait_for_timeout(4000)
 
-    soup = BeautifulSoup(r.text, "html.parser")
-    script = soup.find("script", type="application/ld+json")
+        # ===== CAPTION =====
+        caption = ""
+        try:
+            caption = page.locator("article span").first.inner_text()
+        except:
+            caption = ""
 
-    if not script:
-        raise Exception("Metadata tidak ditemukan")
+        # ===== TANGGAL =====
+        tanggal = ""
+        try:
+            dt = page.locator("time").get_attribute("datetime")
+            tanggal = dt[:10]
+        except:
+            tanggal = ""
 
-    data = json.loads(script.string)
+        browser.close()
 
-    caption = clean_caption(data.get("caption", ""))
-    tanggal = data.get("uploadDate", "")[:10]
-
-    return {
-        "Caption": caption,
-        "Tanggal": tanggal,
-        "Link": url
-    }
+        return {
+            "Caption": clean_caption(caption),
+            "Tanggal": tanggal,
+            "Link": url
+        }
 
 # ==================== UI ====================
 tab1, tab2 = st.tabs(["🛠️ Tools Input Data", "📊 Dashboard Monitoring"])
 
 with tab1:
-    st.title("🛠️ InstaMon Instagram Scraper (HTML Mode)")
+    st.title("🛠️ InstaMon Instagram Monitoring")
+    st.caption("Mode cepat • Tanpa login • Untuk monitoring kegiatan")
 
-    st.info(
-        "Mode TANPA LOGIN\n"
-        "- Maks 5 link per proses\n"
-        "- Delay 6 detik / link\n"
-        "- Reel / post baru bisa gagal"
+    st.warning(
+        "⚠️ Ketentuan Aman:\n"
+        "- Maksimal 5 link per proses\n"
+        "- Delay 5 detik / link\n"
+        "- Jalankan secara lokal"
     )
 
     links_text = st.text_area(
         "Masukkan link Instagram (1 per baris)",
         height=150,
-        placeholder="https://www.instagram.com/p/xxxx/"
+        placeholder="https://www.instagram.com/p/xxxxx/"
     )
 
     if st.button("🚀 Proses Data"):
@@ -87,18 +85,18 @@ with tab1:
         else:
             sukses, gagal = 0, 0
 
-            with st.spinner("Mengambil data (safe mode)..."):
+            with st.spinner("Mengambil data dari Instagram..."):
                 for i, link in enumerate(links, start=1):
                     try:
-                        hasil = scrape_instagram_html(link)
-                        st.session_state.data.append(hasil)
+                        data = scrape_instagram_playwright(link)
+                        st.session_state.data.append(data)
                         sukses += 1
                         st.success(f"✅ ({i}/{len(links)}) Berhasil")
-                    except Exception:
+                    except Exception as e:
                         gagal += 1
                         st.warning(f"⚠️ ({i}/{len(links)}) Gagal")
 
-                    time.sleep(6)
+                    time.sleep(5)
 
             st.success(f"🎉 Selesai | Berhasil: {sukses} | Gagal: {gagal}")
 
@@ -112,9 +110,11 @@ with tab1:
         st.download_button(
             "⬇️ Download CSV",
             csv,
-            "hasil_scraping_instagram.csv",
+            "hasil_monitoring_instagram.csv",
             "text/csv"
         )
+    else:
+        st.info("Belum ada data.")
 
 with tab2:
     st.title("📊 Dashboard Monitoring")
