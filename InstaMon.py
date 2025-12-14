@@ -48,7 +48,6 @@ def parse_csv_content(csv_text):
 
         link, caption, ts = row[0], row[1], row[2]
 
-        # format tanggal
         ts = (ts or "").strip()
         if ts.endswith("Z"):
             ts = ts.replace("Z", "+00:00")
@@ -68,12 +67,13 @@ def parse_csv_content(csv_text):
 # ----------------------------
 def send_to_gsheet(rows):
     """
-    Secrets yang dibutuhkan di Streamlit Cloud:
-      [gcp_service_account] -> isi JSON service account
-      [gsheet]
-        spreadsheet_id = "...."
-        sheet_name = "...."   (nama tab, mis: Sheet1)
+    Mengisi kolom:
+      B = Caption
+      C = Tanggal
+      E = Link
+    Kolom D dikosongkan, kolom A dibiarkan.
     """
+
     sa_info = st.secrets["gcp_service_account"]
     creds = Credentials.from_service_account_info(
         sa_info,
@@ -86,12 +86,41 @@ def send_to_gsheet(rows):
 
     ws = client.open_by_key(spreadsheet_id).worksheet(sheet_name)
 
-    # header kalau sheet masih kosong
-    if not ws.get_all_values():
-        ws.append_row(["Caption", "Tanggal", "Link"])
+    # --- Header: taruh di B1, C1, E1 (kalau masih kosong) ---
+    b1 = (ws.acell("B1").value or "").strip()
+    c1 = (ws.acell("C1").value or "").strip()
+    e1 = (ws.acell("E1").value or "").strip()
 
-    values = [[r["Caption"], r["Tanggal"], r["Link"]] for r in rows]
-    ws.append_rows(values, value_input_option="RAW")
+    updates = []
+    if b1 == "":
+        updates.append(("B1", [["Caption"]]))
+    if c1 == "":
+        updates.append(("C1", [["Tanggal"]]))
+    if e1 == "":
+        updates.append(("E1", [["Link"]]))
+
+    for cell, val in updates:
+        ws.update(cell, val)
+
+    # --- Tentukan baris mulai (append di bawah baris terakhir yang ada isinya di sheet) ---
+    last_row = len(ws.get_all_values())  # baris terakhir yang ada isi di sheet (kolom mana pun)
+    start_row = max(2, last_row + 1)     # minimal mulai dari baris 2 (biar header aman)
+
+    # Range yang kita isi: B..E (karena E kolom ke-5)
+    end_row = start_row + len(rows) - 1
+    data_range = f"B{start_row}:E{end_row}"
+
+    # Siapkan values untuk kolom B,C,D,E (D sengaja kosong)
+    values = []
+    for r in rows:
+        values.append([
+            r.get("Caption", ""),   # B
+            r.get("Tanggal", ""),   # C
+            "",                     # D (kosong)
+            r.get("Link", ""),      # E
+        ])
+
+    ws.update(data_range, values, value_input_option="RAW")
 
 # ----------------------------
 # UI
@@ -108,18 +137,14 @@ with tab1:
     uploaded = st.file_uploader("Upload CSV (link, caption, timestamp)", type=["csv"])
 
     st.subheader("✍️ Atau Paste Data CSV")
-    pasted_text = st.text_area(
-        "Paste di sini (1 baris = 1 postingan)",
-        height=150
-    )
+    pasted_text = st.text_area("Paste di sini (1 baris = 1 postingan)", height=150)
 
-    # Info email service account (biar gampang share Sheet)
     with st.expander("🔐 Info Service Account (untuk share Google Sheet)"):
         try:
             st.write("Share spreadsheet kamu ke email ini sebagai **Editor**:")
             st.code(st.secrets["gcp_service_account"]["client_email"])
         except Exception:
-            st.warning("Secrets belum kebaca. Pastikan kamu sudah set di Streamlit Cloud > Settings > Secrets.")
+            st.warning("Secrets belum kebaca. Pastikan sudah set di Streamlit Cloud > Settings > Secrets.")
 
     col1, col2, col3 = st.columns(3)
 
@@ -137,7 +162,7 @@ with tab1:
                 try:
                     data_baru = parse_csv_content(csv_text)
                     st.session_state.data.extend(data_baru)
-                    st.session_state.last_processed = data_baru  # hanya yang terakhir diproses
+                    st.session_state.last_processed = data_baru
                     st.success(f"✅ {len(data_baru)} data berhasil diproses")
                 except Exception as e:
                     st.error("Gagal memproses data:")
@@ -150,14 +175,14 @@ with tab1:
             st.success("Data berhasil direset")
 
     with col3:
-        if st.button("📤 KIRIM DATA TERAKHIR KE GOOGLE SHEETS"):
+        if st.button("📤 KIRIM DATA TERAKHIR KE GOOGLE SHEETS (B,C,E)"):
             try:
                 rows = st.session_state.get("last_processed", [])
                 if not rows:
                     st.warning("Belum ada data baru yang diproses. Klik PROSES DATA dulu.")
                 else:
                     send_to_gsheet(rows)
-                    st.success(f"✅ {len(rows)} baris terkirim ke Google Sheets")
+                    st.success(f"✅ {len(rows)} baris terkirim ke Google Sheets (kolom B,C,E)")
             except Exception as e:
                 st.error("❌ Gagal kirim ke Sheets (detail di bawah):")
                 st.exception(e)
