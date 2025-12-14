@@ -1,5 +1,7 @@
 instaloader
 gspread
 pandas
-bs4
-playwright
+streamlit
+google-auth
+
+
