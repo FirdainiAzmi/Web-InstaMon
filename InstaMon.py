@@ -241,7 +241,7 @@ with tab3:
     # ======================
     # SECTION: APA ITU INSTAMON
     # ======================
-    col1 = st.columns(2)
+    col1 = st.columns(1)
 
     with col1:
         st.markdown("""
@@ -341,4 +341,5 @@ navigator.clipboard.writeText(line)
         """, language="javascript")
 
     st.divider()
+
 
