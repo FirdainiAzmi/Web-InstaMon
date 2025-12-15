@@ -272,27 +272,38 @@ with tab3:
 
     with c1:
         st.info("""
-        **1️⃣ Instagram**
-        - Login IG
-        - Buka 1 postingan
-        """)
-
-    with c2:
-        st.info("""
-        **2️⃣ Bookmarklet**
+        **1️⃣Bookmarklet**
         - Klik IG to CSV
         - Data disalin
         """)
-
-    with c3:
+    with c2:
         st.info("""
-        **3️⃣ InstaMon**
-        - Paste CSV
+        **2️⃣ Rekap Data**
+        - Paste hasil bookmarklet
         - Proses data
+        - Kirim data ke Google Sheets
         """)
+    with c:
+        st.info("""
+        **3️⃣ Dashboard Monitoring**
+        - Hasil rekap data yang dilakukan akan ditampilkan pada dashbaord tersebut
+        """)
+    st.divider()
+    # ======================
+    # SECTION: CARA PAKAI
+    # ======================
+    st.markdown("## ▶️ Cara Penggunaan InstaMon")
+
+    st.markdown("""
+    1. Login Instagram melalui browser  
+    2. Buka **1 postingan Instagram**
+    3. Klik bookmark **IG to CSV**
+    4. Data otomatis tersalin
+    5. Paste ke kolom CSV di InstaMon
+    6. Klik **Proses Data**
+    """)
 
     st.divider()
-
     # ======================
     # SECTION: BOOKMARKLET
     # ======================
@@ -342,21 +353,7 @@ navigator.clipboard.writeText(line)
 
     st.divider()
 
-    # ======================
-    # SECTION: CARA PAKAI
-    # ======================
-    st.markdown("## ▶️ Cara Menggunakan")
 
-    st.markdown("""
-    1. Login Instagram melalui browser  
-    2. Buka **1 postingan Instagram**
-    3. Klik bookmark **IG to CSV**
-    4. Data otomatis tersalin
-    5. Paste ke kolom CSV di InstaMon
-    6. Klik **Proses Data**
-    """)
-
-    st.divider()
 
 
 
