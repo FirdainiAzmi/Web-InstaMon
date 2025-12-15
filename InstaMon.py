@@ -285,7 +285,7 @@ with tab3:
     st.markdown("""
     1. Login Instagram melalui browser  
     2. Buka **1 postingan Instagram**
-    3. Klik bookmark **IG to CSV**
+    3. Klik bookmark **IG to CSV** yang sudah dibuat (lihat halaman bawah untuk cara pembuatan bookmarklet)
     4. Data otomatis tersalin
     5. Paste ke kolom CSV di InstaMon
     6. Klik **Proses Data**
@@ -339,6 +339,7 @@ navigator.clipboard.writeText(line)
         """, language="javascript")
 
     st.divider()
+
 
 
 
