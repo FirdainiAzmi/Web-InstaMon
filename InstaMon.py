@@ -288,14 +288,14 @@ with tab1:
             st.warning(f"⚠️ {skipped} data duplikat dilewati.")
 
     # --- LOGIKA GSHEET (LOGIKA ASLI ANDA) ---
-    if btn_gsheet:
-        if not st.session_state.last_processed:
-            st.warning("Belum ada data baru untuk dikirim.")
-        else:
-            with st.spinner("Sedang mengirim ke Google Sheets..."):
-                send_to_gsheet(st.session_state.last_processed)
-                st.balloons() # Efek visual sukses
-                st.success(f"✅ {len(st.session_state.last_processed)} baris berhasil dikirim!")
+        if btn_gsheet:
+            if not st.session_state.last_processed:
+                st.warning("Belum ada data baru untuk dikirim.")
+            else:
+                with st.spinner("Sedang mengirim ke Google Sheets..."):
+                    send_to_gsheet(st.session_state.last_processed)
+                    st.balloons() # Efek visual sukses
+                    st.success(f"✅ {len(st.session_state.last_processed)} baris berhasil dikirim!")
 
     # --- LOGIKA CLEAR (LOGIKA ASLI ANDA) ---
     if btn_clear:
@@ -449,6 +449,7 @@ navigator.clipboard.writeText(line)
         """, language="javascript")
 
     st.divider()
+
 
 
 
