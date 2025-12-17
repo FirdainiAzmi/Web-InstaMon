@@ -293,7 +293,7 @@ with tab2:
     st.components.v1.iframe(
         src=LOOKER_EMBED_URL,
         width=1400,
-        height=550,
+        height=500,
         scrolling=True
     )
 
@@ -405,6 +405,7 @@ navigator.clipboard.writeText(line)
         """, language="javascript")
 
     st.divider()
+
 
 
 
