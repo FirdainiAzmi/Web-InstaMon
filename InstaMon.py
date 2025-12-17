@@ -183,7 +183,7 @@ with st.sidebar:
 # HEADER & METRICS
 # =========================================================
 st.title("🚀 InstaMon BPS")
-st.markdown("Automasi rekap konten Instagram ke Google Sheets."
+st.markdown("Automasi rekap konten Instagram ke Google Sheets.")
 
 st.write("---")
 
@@ -399,6 +399,7 @@ navigator.clipboard.writeText(line)
         """, language="javascript")
 
     st.divider()
+
 
 
 
