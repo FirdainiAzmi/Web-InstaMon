@@ -272,37 +272,37 @@ with tab1:
             st.divider()
             st.caption("ℹ️ Pastikan format CSV sesuai dengan output dari bookmarklet Instagram.")
 
-        # --- LOGIKA PROSES (LOGIKA ASLI ANDA) ---
-       if btn_proses:
-           if input_csv.strip() and nama_penginput.strip():
-                existing_links = {d["Link"] for d in st.session_state.data}
-                # PERBAIKAN: Tambahkan nama_penginput sebagai argumen ketiga
-                data_baru, skipped = parse_csv_content(input_csv, existing_links, nama_penginput)
-                
-                st.session_state.data.extend(data_baru)
-                st.session_state.last_processed = data_baru
-                
-                st.toast("Data sedang diproses...", icon="⏳")
-                st.success(f"✅ {len(data_baru)} data diproses!!")
-            if skipped > 0:
-                st.warning(f"⚠️ {skipped} data duplikat dilewati.")
-
+    # --- LOGIKA PROSES (LOGIKA ASLI ANDA) ---
+    if btn_proses:
+       if input_csv.strip() and nama_penginput.strip():
+            existing_links = {d["Link"] for d in st.session_state.data}
+            # PERBAIKAN: Tambahkan nama_penginput sebagai argumen ketiga
+            data_baru, skipped = parse_csv_content(input_csv, existing_links, nama_penginput)
+            
+            st.session_state.data.extend(data_baru)
+            st.session_state.last_processed = data_baru
+            
+            st.toast("Data sedang diproses...", icon="⏳")
+            st.success(f"✅ {len(data_baru)} data diproses!!")
+        if skipped > 0:
+            st.warning(f"⚠️ {skipped} data duplikat dilewati.")
+    
     # --- LOGIKA GSHEET (LOGIKA ASLI ANDA) ---
-        if btn_gsheet:
-            if not st.session_state.last_processed:
-                st.warning("Belum ada data baru untuk dikirim.")
-            else:
-                with st.spinner("Sedang mengirim ke Google Sheets..."):
-                    send_to_gsheet(st.session_state.last_processed)
-                    st.balloons() # Efek visual sukses
-                    st.success(f"✅ {len(st.session_state.last_processed)} baris berhasil dikirim!")
-
-        # --- LOGIKA CLEAR (LOGIKA ASLI ANDA) ---
-        if btn_clear:
-            st.session_state.data = []
-            st.session_state.last_processed = []
-            st.success("Antrean berhasil dikosongkan.")
-            st.rerun()
+    if btn_gsheet:
+        if not st.session_state.last_processed:
+            st.warning("Belum ada data baru untuk dikirim.")
+        else:
+            with st.spinner("Sedang mengirim ke Google Sheets..."):
+                send_to_gsheet(st.session_state.last_processed)
+                st.balloons() # Efek visual sukses
+                st.success(f"✅ {len(st.session_state.last_processed)} baris berhasil dikirim!")
+    
+    # --- LOGIKA CLEAR (LOGIKA ASLI ANDA) ---
+    if btn_clear:
+        st.session_state.data = []
+        st.session_state.last_processed = []
+        st.success("Antrean berhasil dikosongkan.")
+        st.rerun()
 
     # --- BAGIAN BAWAH: PREVIEW ---
     st.divider()
@@ -449,6 +449,7 @@ navigator.clipboard.writeText(line)
         """, language="javascript")
 
     st.divider()
+
 
 
 
