@@ -254,8 +254,7 @@ with tab1:
             input_csv = st.text_area(
                 "Masukkan kode dari bookmarklet:", 
                 height=150, # Sedikit dikurangi tingginya agar muat dengan input nama
-                placeholder="Link, Caption, Timestamp...",
-                label_visibility="collapsed"
+                placeholder="Link, Caption, Timestamp..."
             )
     
     with col_opt:
@@ -449,6 +448,7 @@ navigator.clipboard.writeText(line)
         """, language="javascript")
 
     st.divider()
+
 
 
 
