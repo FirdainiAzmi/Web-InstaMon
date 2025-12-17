@@ -125,7 +125,7 @@ def send_to_gsheet(rows):
         creds = Credentials.from_service_account_info(sa_info, scopes=["https://www.googleapis.com/auth/spreadsheets"])
         client = gspread.authorize(creds)
         ws = client.open_by_key(st.secrets["gsheet"]["spreadsheet_id"]).worksheet(st.secrets["gsheet"]["sheet_name"])
-        values = [[r["Caption"], r["Tanggal"], "", r["Link"]] for r in rows]
+        values = [[r["Caption"], r["Tanggal"], "", r["Link"], r["Penginput"]] for r in rows]
         last_row = len(ws.get_all_values())
         start_row = max(2, last_row + 1)
         ws.update(f"B{start_row}:E{start_row + len(rows) - 1}", values, value_input_option="RAW")
@@ -175,7 +175,8 @@ def parse_csv_content(csv_text, existing_links):
         hasil.append({
             "Caption": clean_caption(caption),
             "Tanggal": tanggal,
-            "Link": link
+            "Link": link,
+            "Penginput": nama_penginput
         })
 
     return hasil, skipped
@@ -237,30 +238,19 @@ tab1, tab2, tab3 = st.tabs(["⚡ Input Data", "📊 Dashboard Looker", "📖 Pan
 with tab1:
     # --- BAGIAN ATAS: INPUT & AKSI ---
     col_in, col_opt = st.columns([2, 1])
-    
-    # with col_in:
-    #     st.markdown("#### 📥 Paste Data")
-    #     # Menggunakan container agar area input terlihat seperti kartu (card)
-    #     with st.container(border=True):
-    #         input_csv = st.text_area(
-    #             "Masukkan kode dari bookmarklet:", 
-    #             height=215, 
-    #             placeholder="Link, Caption, Timestamp...",
-    #             label_visibility="collapsed" # Menyembunyikan label agar lebih clean
-    #         )
 
     with col_in:
-    st.markdown("#### 📥 Paste Data")
-    with st.container(border=True):
-        # Tambahkan input nama penginput di sini
-        nama_penginput = st.text_input("👤 Nama Penginput:", placeholder="Masukkan nama Anda...")
-        
-        input_csv = st.text_area(
-            "Masukkan kode dari bookmarklet:", 
-            height=150, # Sedikit dikurangi tingginya agar muat dengan input nama
-            placeholder="Link, Caption, Timestamp...",
-            label_visibility="collapsed"
-        )
+        st.markdown("#### 📥 Paste Data")
+        with st.container(border=True):
+            # Tambahkan input nama penginput di sini
+            nama_penginput = st.text_input("👤 Nama Penginput:", placeholder="Masukkan nama Anda...")
+            
+            input_csv = st.text_area(
+                "Masukkan kode dari bookmarklet:", 
+                height=150, # Sedikit dikurangi tingginya agar muat dengan input nama
+                placeholder="Link, Caption, Timestamp...",
+                label_visibility="collapsed"
+            )
     
     with col_opt:
         st.markdown("#### ⚙️ Aksi Cepat")
@@ -278,8 +268,7 @@ with tab1:
 
     # --- LOGIKA PROSES (LOGIKA ASLI ANDA) ---
     if btn_proses:
-        if input_csv.strip():
-            # Memanggil fungsi parse asli Anda
+        if input_csv.strip() and nama_penginput.strip():
             existing_links = {d["Link"] for d in st.session_state.data}
             data_baru, skipped = parse_csv_content(input_csv, existing_links)
             
@@ -287,9 +276,11 @@ with tab1:
             st.session_state.last_processed = data_baru
             
             st.toast("Data sedang diproses...", icon="⏳")
-            st.success(f"✅ {len(data_baru)} data berhasil dibersihkan!")
+            st.success(f"✅ {len(data_baru)} data diproses!!")
             if skipped > 0:
                 st.warning(f"⚠️ {skipped} data duplikat dilewati.")
+        elif not nama_penginput.strip():
+            st.warning("Silahkan isi Nama Penginput terlebih dahulu!")
         else:
             st.warning("Input masih kosong! Silahkan paste data terlebih dahulu.")
 
@@ -455,6 +446,7 @@ navigator.clipboard.writeText(line)
         """, language="javascript")
 
     st.divider()
+
 
 
 
