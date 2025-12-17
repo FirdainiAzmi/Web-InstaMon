@@ -150,79 +150,68 @@ st.write("---")
 # =========================================================
 tab1, tab2, tab3 = st.tabs(["⚡ Input Data", "📊 Dashboard Looker", "📖 Panduan"])
 with tab1:
+    st.markdown("## 🛠️ Input & Proses Data Instagram")
+    st.caption("Format hasil bookmark: **link, caption, timestamp**")
 
-    col_in, col_opt = st.columns([2, 1])
+    with st.container(border=True):
+        pasted_text = st.text_area(
+            "📋 Paste Data CSV",
+            height=220
+        )
 
-    # ---------- INPUT ----------
-    with col_in:
-        st.markdown("#### 📥 Paste Data dari Bookmarklet Instagram")
-        with st.container(border=True):
-            input_csv = st.text_area(
-                "Paste di sini",
-                height=220,
-                placeholder='"https://www.instagram.com/p/xxxx/","Caption","2025-07-03T09:34:26.000Z"',
-                label_visibility="collapsed"
-            )
+    with st.expander("🔐 Informasi Service Account"):
+        st.markdown("Share Google Sheet ke email ini sebagai **Editor**:")
+        st.code(st.secrets["gcp_service_account"]["client_email"])
 
-    # ---------- ACTIONS ----------
-    with col_opt:
-        st.markdown("#### ⚙️ Aksi")
-        with st.container(border=True):
-            btn_proses = st.button("⚡ Proses & Bersihkan", type="primary", use_container_width=True)
-            st.write("")
-            btn_clear = st.button("🗑️ Kosongkan Data", use_container_width=True)
+    col1, col2, col3 = st.columns(3)
 
-            st.divider()
-            st.caption("Gunakan output langsung dari bookmarklet IG")
+    with col1:
+        if st.button("🚀 Proses Data", use_container_width=True):
+            if not pasted_text.strip():
+                st.warning("Paste data terlebih dahulu.")
+            else:
+                existing_links = {d["Link"] for d in st.session_state.data}
+                data_baru, skipped = parse_csv_content(
+                    pasted_text,
+                    existing_links
+                )
 
-    # ---------- LOGIC ----------
-    if btn_proses:
-        if not input_csv.strip():
-            st.warning("⚠️ Input masih kosong")
-        else:
-            existing_links = {d["Link"] for d in st.session_state.data}
-            data_baru, skipped = parse_csv_content(input_csv, existing_links)
+                st.session_state.data.extend(data_baru)
+                st.session_state.last_processed = data_baru
 
-            st.session_state.data.extend(data_baru)
-            st.session_state.last_processed = data_baru
+                st.success(f"✅ {len(data_baru)} data diproses")
+                if skipped > 0:
+                    st.warning(f"⚠️ {skipped} data dilewati (duplikat link)")
 
-            st.success(f"✅ {len(data_baru)} data berhasil diproses")
-            if skipped:
-                st.warning(f"⚠️ {skipped} data duplikat dilewati")
+    with col2:
+        if st.button("🗑️ Reset Data", use_container_width=True):
+            st.session_state.data = []
+            st.session_state.last_processed = []
+            st.success("Data berhasil direset")
 
-    if btn_clear:
-        st.session_state.data = []
-        st.session_state.last_processed = []
-        st.success("✅ Data dikosongkan")
-        st.rerun()
+    with col3:
+        if st.button("📤 Kirim ke Google Sheets", use_container_width=True):
+            rows = st.session_state.last_processed
+            if not rows:
+                st.warning("Belum ada data baru.")
+            else:
+                send_to_gsheet(rows)
+                st.success(f"✅ {len(rows)} baris terkirim ke Google Sheets")
 
-    # ---------- PREVIEW ----------
     st.divider()
-    st.markdown("#### 🔍 Preview Data")
 
     if st.session_state.data:
         df = pd.DataFrame(st.session_state.data)
-
-        st.dataframe(
-            df,
-            use_container_width=True,
-            hide_index=True,
-            column_config={
-                "Link": st.column_config.LinkColumn("Link Post"),
-                "Caption": st.column_config.TextColumn("Caption (Clean)"),
-                "Tanggal": st.column_config.TextColumn("Tanggal Post")
-            }
-        )
+        st.dataframe(df, use_container_width=True)
 
         st.download_button(
             "⬇️ Download CSV",
             df.to_csv(index=False).encode("utf-8"),
-            file_name=f"rekap_instagram_{datetime.now().strftime('%Y%m%d')}.csv",
-            mime="text/csv"
+            "hasil_monitoring_instagram.csv",
+            "text/csv"
         )
     else:
-        st.info("Belum ada data. Paste hasil bookmarklet untuk mulai.")
-
+        st.info("Belum ada data.")
 with tab2:
     st.markdown("""
         <div style="background-color: white; padding: 10px; border-radius: 15px;">
@@ -338,5 +327,6 @@ navigator.clipboard.writeText(line)
         """, language="javascript")
 
     st.divider()
+
 
 
