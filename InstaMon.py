@@ -17,68 +17,68 @@ st.set_page_config(
 )
 
 LOOKER_EMBED_URL = "https://lookerstudio.google.com/embed/reporting/f8d6fc1b-b5bd-43eb-881c-e74a9d86ff75/page/Z52hF"
-# # Custom CSS untuk tampilan Modern & Clean
-# st.markdown("""
-#     <style>
-#     /* Mengubah font dan background */
-#     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+# Custom CSS untuk tampilan Modern & Clean
+st.markdown("""
+    <style>
+    /* Mengubah font dan background */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
     
-#     html, body, [class*="css"] {
-#         font-family: 'Inter', sans-serif;
-#     }
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
+    }
 
-#     /* Container Styling */
-#     .stApp {
-#         background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-#     }
+    /* Container Styling */
+    .stApp {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
 
-#     /* Card Styling */
-#     div[data-testid="stMetric"] {
-#         background-color: rgba(255, 255, 255, 0.8);
-#         padding: 15px 20px;
-#         border-radius: 15px;
-#         box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-#         border: 1px solid rgba(255,255,255,0.3);
-#     }
+    /* Card Styling */
+    div[data-testid="stMetric"] {
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 15px 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border: 1px solid rgba(255,255,255,0.3);
+    }
 
-#     /* Tab Styling */
-#     .stTabs [data-baseweb="tab-list"] {
-#         gap: 10px;
-#         background-color: transparent;
-#     }
+    /* Tab Styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 10px;
+        background-color: transparent;
+    }
 
-#     .stTabs [data-baseweb="tab"] {
-#         height: 50px;
-#         background-color: white;
-#         border-radius: 10px 10px 0px 0px;
-#         padding: 0px 30px;
-#         border: none;
-#         box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-#     }
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        background-color: white;
+        border-radius: 10px 10px 0px 0px;
+        padding: 0px 30px;
+        border: none;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
 
-#     .stTabs [aria-selected="true"] {
-#         background-color: #4F46E5 !important;
-#         color: white !important;
-#     }
+    .stTabs [aria-selected="true"] {
+        background-color: #4F46E5 !important;
+        color: white !important;
+    }
 
-#     /* Main Action Button */
-#     .stButton>button[kind="primary"] {
-#         background: linear-gradient(45deg, #4F46E5, #7C3AED);
-#         border: none;
-#         color: white;
-#         padding: 12px 24px;
-#         font-weight: 700;
-#         border-radius: 12px;
-#         width: 100%;
-#     }
+    /* Main Action Button */
+    .stButton>button[kind="primary"] {
+        background: linear-gradient(45deg, #4F46E5, #7C3AED);
+        border: none;
+        color: white;
+        padding: 12px 24px;
+        font-weight: 700;
+        border-radius: 12px;
+        width: 100%;
+    }
 
-#     /* Dataframe Styling */
-#     .stDataFrame {
-#         border-radius: 15px;
-#         overflow: hidden;
-#     }
-#     </style>
-#     """, unsafe_allow_html=True)
+    /* Dataframe Styling */
+    .stDataFrame {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 # =========================================================
 # HELPER FUNCTIONS
@@ -183,13 +183,7 @@ with st.sidebar:
 # HEADER & METRICS
 # =========================================================
 st.title("🚀 InstaMon BPS")
-st.markdown("Automasi rekap konten Instagram ke Google Sheets.")
-
-m1, m2, m3, m4 = st.columns(4)
-m1.metric("Status", "Operational 🟢")
-m2.metric("Data Tersimpan", len(st.session_state.data))
-m3.metric("Uploader", st.secrets["auth"]["username"])
-m4.metric("Version", "2.0.1")
+st.markdown("Automasi rekap konten Instagram ke Google Sheets."
 
 st.write("---")
 
