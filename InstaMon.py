@@ -183,7 +183,7 @@ with st.sidebar:
     st.markdown("""
         <div style="padding: 10px; border-radius: 10px; background-color: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.2);">
             <p style="margin:0; font-size:0.8rem; color:#475569;">Developed By:</p>
-            <p style="margin:0; font-weight:bold; color:#4F46E5;">Tim IT BPS</p>
+            <p style="margin:0; font-weight:bold; color:#4F46E5;">Firdaini Azmi</p>
         </div>
     """, unsafe_allow_html=True)
 
@@ -407,6 +407,7 @@ navigator.clipboard.writeText(line)
         """, language="javascript")
 
     st.divider()
+
 
 
 
