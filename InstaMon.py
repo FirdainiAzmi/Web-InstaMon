@@ -119,18 +119,24 @@ st.markdown("""
 # HELPER FUNCTIONS
 # =========================================================
 def send_to_gsheet(rows):
-    # (Logika tetap sama dengan kode Anda sebelumnya)
     try:
         sa_info = st.secrets["gcp_service_account"]
         creds = Credentials.from_service_account_info(sa_info, scopes=["https://www.googleapis.com/auth/spreadsheets"])
         client = gspread.authorize(creds)
         ws = client.open_by_key(st.secrets["gsheet"]["spreadsheet_id"]).worksheet(st.secrets["gsheet"]["sheet_name"])
+        
+        # Data yang disusun: B=Caption, C=Tanggal, D="", E=Link, F=Penginput
         values = [[r["Caption"], r["Tanggal"], "", r["Link"], r["Penginput"]] for r in rows]
+        
         last_row = len(ws.get_all_values())
         start_row = max(2, last_row + 1)
-        ws.update(f"B{start_row}:E{start_row + len(rows) - 1}", values, value_input_option="RAW")
+        
+        # PERBAIKAN: Range harus sampai kolom F (Kolom ke-6)
+        # B = Kolom 2, F = Kolom 6. 
+        ws.update(f"B{start_row}:F{start_row + len(rows) - 1}", values, value_input_option="RAW")
         return True
-    except:
+    except Exception as e:
+        st.error(f"Gagal mengirim ke GSheet: {e}") # Agar Anda tahu jika ada error teknis
         return False
 
 # =========================================================
@@ -149,7 +155,8 @@ def clean_caption(text):
     text = re.sub(r"[^A-Za-z0-9 ,.!?]+", " ", text)
     return " ".join(text.split()).strip()
 
-def parse_csv_content(csv_text, existing_links):
+# Tambahkan parameter nama_penginput
+def parse_csv_content(csv_text, existing_links, nama_penginput): 
     reader = csv.reader(StringIO(csv_text))
     hasil = []
     skipped = 0
@@ -165,7 +172,6 @@ def parse_csv_content(csv_text, existing_links):
             continue
 
         existing_links.add(link)
-
         ts = ts.strip()
         if ts.endswith("Z"):
             ts = ts.replace("Z", "+00:00")
@@ -176,7 +182,7 @@ def parse_csv_content(csv_text, existing_links):
             "Caption": clean_caption(caption),
             "Tanggal": tanggal,
             "Link": link,
-            "Penginput": nama_penginput
+            "Penginput": nama_penginput # Masukkan variabel ke sini
         })
 
     return hasil, skipped
@@ -267,10 +273,11 @@ with tab1:
             st.caption("ℹ️ Pastikan format CSV sesuai dengan output dari bookmarklet Instagram.")
 
     # --- LOGIKA PROSES (LOGIKA ASLI ANDA) ---
-    if btn_proses:
+   if btn_proses:
         if input_csv.strip() and nama_penginput.strip():
             existing_links = {d["Link"] for d in st.session_state.data}
-            data_baru, skipped = parse_csv_content(input_csv, existing_links)
+            # PERBAIKAN: Tambahkan nama_penginput sebagai argumen ketiga
+            data_baru, skipped = parse_csv_content(input_csv, existing_links, nama_penginput)
             
             st.session_state.data.extend(data_baru)
             st.session_state.last_processed = data_baru
@@ -279,10 +286,6 @@ with tab1:
             st.success(f"✅ {len(data_baru)} data diproses!!")
             if skipped > 0:
                 st.warning(f"⚠️ {skipped} data duplikat dilewati.")
-        elif not nama_penginput.strip():
-            st.warning("Silahkan isi Nama Penginput terlebih dahulu!")
-        else:
-            st.warning("Input masih kosong! Silahkan paste data terlebih dahulu.")
 
     # --- LOGIKA GSHEET (LOGIKA ASLI ANDA) ---
     if btn_gsheet:
@@ -446,6 +449,7 @@ navigator.clipboard.writeText(line)
         """, language="javascript")
 
     st.divider()
+
 
 
 
